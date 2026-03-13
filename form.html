@@ -92,9 +92,6 @@
           <label>入学年份 <span class="req">*</span></label>
           <select id="year">
             <option value="">请选择</option>
-            <option>2024</option><option>2023</option><option>2022</option>
-            <option>2021</option><option>2020</option><option>2019</option>
-            <option>2018</option><option>2017</option>
           </select>
         </div>
         <div class="f">
@@ -178,6 +175,18 @@
 
 <script>
 let photoData = null;
+
+// 动态生成年份
+(function() {
+  const yearSelect = document.getElementById('year');
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear + 2; y >= 2015; y--) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    yearSelect.appendChild(opt);
+  }
+})();
 
 function handlePhoto(input) {
   const file = input.files[0];
