@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: lab-member-system
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    labels:
+      - "com.example.description=课题组成员信息收集系统"
