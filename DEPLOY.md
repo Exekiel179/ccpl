@@ -1,106 +1,89 @@
 # 快速部署指南
 
-## 发布到 GitHub
+## 方式一：Docker 镜像部署 (推荐)
 
-1. **创建 GitHub 仓库**
-   - 访问 https://github.com/new
-   - 仓库名称：`lab-member-system`（或自定义）
-   - 设置为 Public 或 Private
-   - 不要初始化 README（已有文件）
+我们已经在 GitHub Container Registry (GHCR) 上发布了预构建的镜像，您可以直接拉取运行。
 
-2. **推送代码**
-   ```bash
-   cd "F:/Projects/成果收集系统/ccpl"
-   git remote add origin https://github.com/你的用户名/lab-member-system.git
-   git push -u origin main
-   ```
-
-3. **启用 GitHub Pages（可选）**
-   - 进入仓库 Settings → Pages
-   - Source 选择 `main` 分支
-   - 访问 `https://你的用户名.github.io/lab-member-system/form.html`
-
-## 发布到 Docker Hub
-
-1. **登录 Docker Hub**
-   ```bash
-   docker login
-   ```
-
-2. **构建镜像**
-   ```bash
-   cd "F:/Projects/成果收集系统/ccpl"
-   docker build -t 你的用户名/lab-member-system:latest .
-   ```
-
-3. **推送到 Docker Hub**
-   ```bash
-   docker push 你的用户名/lab-member-system:latest
-   ```
-
-4. **添加标签（可选）**
-   ```bash
-   docker tag 你的用户名/lab-member-system:latest 你的用户名/lab-member-system:v1.0.0
-   docker push 你的用户名/lab-member-system:v1.0.0
-   ```
-
-## 使用已发布的 Docker 镜像
-
-其他人可以直接使用：
-
+### 1. 准备环境
+创建一个目录用于存放数据：
 ```bash
-# 拉取镜像
-docker pull 你的用户名/lab-member-system:latest
-
-# 运行容器
-docker run -d -p 8080:80 --name lab-system 你的用户名/lab-member-system:latest
-
-# 访问 http://localhost:8080/form.html
+mkdir ccpl && cd ccpl
+mkdir data
 ```
 
-或使用 Docker Compose：
-
+### 2. 创建 docker-compose.yml
 ```yaml
 version: '3.8'
 services:
   web:
-    image: 你的用户名/lab-member-system:latest
+    image: ghcr.io/exekiel179/ccpl-app:latest
+    container_name: ccpl-system
     ports:
       - "8080:80"
+    volumes:
+      - ./data:/app/data
     restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
 ```
 
-## 本地测试 Docker
-
-在推送前先本地测试：
-
+### 3. 启动
 ```bash
-# 构建
-docker build -t lab-member-system .
-
-# 运行
-docker run -d -p 8080:80 --name test-lab lab-member-system
-
-# 测试
-curl http://localhost:8080/form.html
-
-# 停止并删除
-docker stop test-lab && docker rm test-lab
+docker-compose up -d
 ```
 
-## 更新 README
+---
 
-记得在 README.md 中更新：
-- 替换 `your-username` 为你的 GitHub 用户名
-- 添加 Docker Hub 镜像地址
-- 添加在线演示链接（如果使用 GitHub Pages）
+## 方式二：手动构建部署
 
-## 添加徽章（可选）
+如果您修改了代码（例如更改了管理员密码），需要重新构建镜像。
 
-在 README.md 顶部添加：
+### 1. 修改代码
+在 `admin.html` 中搜索 `ADMIN_PWD` 并修改为您自己的密码。
 
-```markdown
-![Docker Image Size](https://img.shields.io/docker/image-size/你的用户名/lab-member-system)
-![Docker Pulls](https://img.shields.io/docker/pulls/你的用户名/lab-member-system)
-![GitHub Stars](https://img.shields.io/github/stars/你的用户名/lab-member-system)
+### 2. 构建镜像
+```bash
+docker build -t ccpl-app:custom .
 ```
+
+### 3. 运行容器
+```bash
+docker run -d \
+  -p 8080:80 \
+  -v $(pwd)/data:/app/data \
+  --name ccpl-custom \
+  ccpl-app:custom
+```
+
+---
+
+## 本地开发调试
+
+如果您想在本地 Python 环境运行：
+
+1. 安装依赖：
+```bash
+pip install -r requirements.txt
+```
+
+2. 运行后端：
+```bash
+uvicorn main:app --reload --port 8000
+```
+
+3. 访问：
+- 填写页：`http://localhost:8000/`
+- 后台：`http://localhost:8000/admin`
+
+---
+
+## 常见问题
+
+### 1. 数据保存在哪里？
+数据保存在容器内的 `/app/data/submissions.db` 文件中。通过挂载，它会同步到您宿主机的 `./data` 目录下。
+
+### 2. 容器删除后数据会丢失吗？
+只要您配置了 `volumes` 挂载，数据就会安全地保存在宿主机硬盘上，即使删除容器再重新创建，数据也会自动恢复。
+
+### 3. 如何备份？
+直接备份宿主机 `./data/submissions.db` 文件即可。
