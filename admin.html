@@ -116,21 +116,25 @@ function logout() {
   document.getElementById('login-err').textContent = '';
 }
 
-function getData() {
-  try { return JSON.parse(localStorage.getItem('lab-submissions') || '[]'); }
-  catch(e) { return []; }
+async function getData() {
+  try {
+    const resp = await fetch('/api/submissions');
+    return await resp.json();
+  } catch(e) {
+    console.error(e);
+    return [];
+  }
 }
 
-function renderList() {
-  const data = getData();
+async function renderList() {
+  const data = await getData();
   const listEl = document.getElementById('list');
   document.getElementById('count-badge').textContent = data.length + ' 条记录';
   if (!data.length) {
     listEl.innerHTML = '<div class="empty">暂无提交记录</div>'; return;
   }
   listEl.innerHTML = '';
-  data.slice().reverse().forEach((r, i) => {
-    const realIdx = data.length - 1 - i;
+  data.forEach((r, i) => {
     const badgeClass = r.degree === '硕士研究生' ? 'badge-m' : r.degree === '博士研究生' ? 'badge-d' : 'badge-p';
     const initials = r.name ? r.name.slice(-2) : '?';
     const avatarHtml = r.photo
@@ -168,7 +172,7 @@ function renderList() {
         (r.linkDesc ? '<div class="dfield" style="margin-top:.5rem"><dt>系统说明</dt><dd>' + escHtml(r.linkDesc) + '</dd></div>' : '') +
         '<div class="card-footer">' +
           '<span class="time-label">提交时间：' + r.submittedAt + '</span>' +
-          '<button class="del-btn" onclick="deleteRecord(' + realIdx + ')">删除此条</button>' +
+          '<button class="del-btn" onclick="deleteRecord(' + r.db_id + ')">删除此条</button>' +
         '</div>' +
       '</div>';
     listEl.appendChild(card);
@@ -186,22 +190,20 @@ function toggle(head) {
   chev.classList.toggle('open');
 }
 
-function deleteRecord(idx) {
+async function deleteRecord(db_id) {
   if (!confirm('确认删除该条记录？')) return;
-  const data = getData();
-  data.splice(idx, 1);
-  localStorage.setItem('lab-submissions', JSON.stringify(data));
+  await fetch('/api/submissions/' + db_id, { method: 'DELETE' });
   renderList();
 }
 
-function clearAll() {
+async function clearAll() {
   if (!confirm('确认清空所有提交记录？此操作不可撤销。')) return;
-  localStorage.removeItem('lab-submissions');
+  await fetch('/api/clear', { method: 'POST' });
   renderList();
 }
 
-function exportCSV() {
-  const data = getData();
+async function exportCSV() {
+  const data = await getData();
   if (!data.length) { alert('暂无数据'); return; }
   const headers = ['姓名','邮箱','入学年份','学位类型','本科院校','本科专业','研究方向','论文成果','获奖情况','在线系统链接','系统说明','提交时间'];
   const rows = data.map(r => [

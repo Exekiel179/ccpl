@@ -224,7 +224,7 @@ function getPapers() {
   return Array.from(document.querySelectorAll('#papers textarea')).map(t => t.value.trim()).filter(Boolean);
 }
 
-function submitForm() {
+async function submitForm() {
   const btn = document.getElementById('submit-btn');
   const msg = document.getElementById('msg');
   const name = document.getElementById('name').value.trim();
@@ -246,7 +246,6 @@ function submitForm() {
   msg.textContent = '提交中...'; msg.className = 'msg';
 
   const record = {
-    id: Date.now(),
     submittedAt: new Date().toLocaleString('zh-CN'),
     name, email, year, degree,
     school, major, research,
@@ -258,11 +257,18 @@ function submitForm() {
   };
 
   try {
-    const existing = JSON.parse(localStorage.getItem('lab-submissions') || '[]');
-    existing.push(record);
-    localStorage.setItem('lab-submissions', JSON.stringify(existing));
-    document.getElementById('form-body').style.display = 'none';
-    document.getElementById('success-box').style.display = 'block';
+    const resp = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record)
+    });
+    
+    if (resp.ok) {
+      document.getElementById('form-body').style.display = 'none';
+      document.getElementById('success-box').style.display = 'block';
+    } else {
+      throw new Error('Server error');
+    }
   } catch(e) {
     msg.textContent = '提交失败，请重试'; msg.className = 'msg err';
     btn.disabled = false;

@@ -1,19 +1,19 @@
-# 使用 Nginx 作为 Web 服务器
-FROM nginx:alpine
+FROM python:3.11-slim
 
-# 复制 HTML 文件到 Nginx 默认目录
-COPY form.html /usr/share/nginx/html/
-COPY admin.html /usr/share/nginx/html/
-COPY backup.html /usr/share/nginx/html/
+WORKDIR /app
 
-# 复制自定义 Nginx 配置
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 安装依赖
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# 创建备份目录
-RUN mkdir -p /usr/share/nginx/html/backups
+# 复制代码
+COPY . .
 
-# 暴露 80 端口
+# 创建数据目录
+RUN mkdir -p /app/data
+
+# 暴露端口（FastAPI 默认可以使用 80）
 EXPOSE 80
 
-# 启动 Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# 启动命令
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
