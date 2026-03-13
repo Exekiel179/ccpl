@@ -1,5 +1,8 @@
 # 课题组成员信息收集系统
 
+[![GitHub Release](https://img.shields.io/github/v/release/Exekiel179/ccpl)](https://github.com/Exekiel179/ccpl/releases)
+[![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue)](https://ghcr.io/exekiel179/ccpl)
+
 一个轻量级的课题组成员信息收集与管理系统，纯前端实现，无需后端服务器。
 
 ## 功能特性
@@ -36,7 +39,16 @@ npx serve
    - 表单页面：`http://localhost:8000/form.html`
    - 管理后台：`http://localhost:8000/admin.html`（默认密码：`lab2024`）
 
-### 方式二：使用 Docker
+### 方式二：使用 Docker（从 GHCR 拉取）
+
+```bash
+# 拉取并运行镜像
+docker run -d -p 8080:80 --name lab-system ghcr.io/exekiel179/ccpl:latest
+
+# 访问 http://localhost:8080/form.html
+```
+
+### 方式三：使用 Docker（本地构建）
 
 ```bash
 # 构建镜像
@@ -48,7 +60,7 @@ docker run -d -p 8080:80 --name lab-system lab-member-system
 # 访问 http://localhost:8080/form.html
 ```
 
-### 方式三：使用 Docker Compose
+### 方式四：使用 Docker Compose
 
 ```bash
 docker-compose up -d
