@@ -38,6 +38,7 @@ npx serve
 3. 访问：
    - 表单页面：`http://localhost:8000/form.html`
    - 管理后台：`http://localhost:8000/admin.html`（默认密码：`lab2024`）
+   - 数据备份：`http://localhost:8000/backup.html`
 
 ### 方式二：使用 Docker（从 GHCR 拉取）
 
@@ -67,6 +68,37 @@ docker-compose up -d
 ```
 
 ## 配置说明
+
+### 端口配置
+
+使用环境变量自定义端口：
+
+```bash
+# 创建 .env 文件
+cp .env.example .env
+
+# 编辑 .env 修改端口
+PORT=3000
+
+# 启动服务
+docker-compose up -d
+```
+
+或直接指定：
+```bash
+docker run -d -p 3000:80 ghcr.io/exekiel179/ccpl:latest
+```
+
+### LocalStorage 数据管理
+
+访问 `http://localhost:8080/backup.html` 进行数据备份和恢复：
+- **导出数据**：将浏览器 localStorage 数据导出为 JSON 文件
+- **恢复数据**：从备份文件恢复数据
+- **查看数据**：查看原始 JSON 数据
+
+**重要**：建议定期备份数据，避免浏览器缓存清除导致数据丢失。
+
+详细配置请查看 [CONFIG.md](CONFIG.md)。
 
 ### 修改管理员密码
 
