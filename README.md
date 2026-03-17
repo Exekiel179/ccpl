@@ -1,7 +1,8 @@
-# ccplccpl信息收集系统
+# ccpl信息收集系统
 
 [![GitHub Release](https://img.shields.io/github/v/release/Exekiel179/ccpl)](https://github.com/Exekiel179/ccpl/releases)
 [![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue)](https://ghcr.io/exekiel179/ccpl-app)
+[ ![ Docker 镜像 ] ( https://img.shields.io/badge/docker-ghcr.io-blue ) ] ( https://ghcr.io/exekiel179/ccpl-app )  
 
 一个轻量级的全栈信息收集与管理系统，基于 FastAPI 和 SQLite 构建，支持成员信息实时汇总与导出。
 
